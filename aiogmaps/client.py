@@ -27,7 +27,6 @@ class Client:
         self, route, params, *args,
         method='GET', chunked=False, **kwargs,
     ):
-        url = self.base_url / route
         base_params = {
             **params,
             'key': self.key,
@@ -35,13 +34,13 @@ class Client:
         async with async_timeout.timeout(self.timeout):
             async with self.session.request(
                 method,
-                url,
+                self.base_url / route,
                 *args,
                 params=base_params,
                 **kwargs,
             ) as response:
                 if chunked:
-                    return response.iter_chunks()
+                    return response.content.iter_chunks()
 
                 response = await response.json()
                 if response['status'] == 'REQUEST_DENIED':
@@ -49,6 +48,15 @@ class Client:
                         reason=response['error_message'],
                     )
                 return response
+
+    async def places_nearby(self, *args, **kwargs):
+        raise NotImplementedError
+
+    async def places_radar(self, *args, **kwargs):
+        raise NotImplementedError
+
+    async def places_autocomplete(self, *args, **kwargs):
+        raise NotImplementedError
 
     async def place(self, place_id, language=None):
         query = {'placeid': place_id}
