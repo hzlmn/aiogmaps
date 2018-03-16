@@ -4,6 +4,9 @@ import aiohttp
 import async_timeout
 from yarl import URL
 
+from .places import (place, places_autocomplete, places_nearby, places_photo,
+                     places_radar)
+
 
 class Client:
     def __init__(self, key, loop=None, session=None, timeout=10):
@@ -34,7 +37,7 @@ class Client:
         async with async_timeout.timeout(self.timeout):
             async with self.session.request(
                 method,
-                self.base_url / route,
+                self.base_url / route.lstrip('/'),
                 *args,
                 params=base_params,
                 **kwargs,
@@ -49,26 +52,13 @@ class Client:
                     )
                 return response
 
-    async def places_nearby(self, *args, **kwargs):
-        raise NotImplementedError
-
-    async def places_radar(self, *args, **kwargs):
-        raise NotImplementedError
-
-    async def places_autocomplete(self, *args, **kwargs):
-        raise NotImplementedError
-
-    async def place(self, place_id, language=None):
-        query = {'placeid': place_id}
-        if language is not None:
-            query['language'] = language
-        return await self._request('maps/api/place/details/json', query)
-
-    async def places_photo(self, reference, max_width=None, max_height=None):
-        query = {'photoreference': reference}
-        if not (max_width or max_height):
-            raise ValueError('Please provide max_width or max_height')
-        return await self._request('maps/api/place/photo', query, chunked=True)
-
     async def close(self):
         await self.session.close()
+
+
+# Places API
+Client.place = place
+Client.places_nearby = places_nearby
+Client.places_autocomplete = places_autocomplete
+Client.places_photo = places_photo
+Client.places_radar = places_radar
