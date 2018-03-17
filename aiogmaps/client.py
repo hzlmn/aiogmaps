@@ -28,7 +28,7 @@ class Client:
 
     async def _request(
         self, route, params, *args,
-        method='GET', chunked=False, **kwargs,
+        method='GET', chunked=False, **kwargs
     ):
         base_params = {
             **params,
