@@ -11,9 +11,10 @@ __ALL__ = (
 )
 
 
-async def _places(self, url_part, query=None, location=None, radius=None,
-                  keyword=None, language=None, min_price=0, max_price=4, name=None,
-                  open_now=False, rank_by=None, type=None, page_token=None):
+async def _places(client, url_part, query=None, location=None,
+                  radius=None, keyword=None, language=None, min_price=0,
+                  max_price=4, name=None, open_now=False, rank_by=None,
+                  type=None, page_token=None):
     params = {'minprice': min_price, 'maxprice': max_price}
 
     if query:
@@ -43,21 +44,25 @@ async def _places(self, url_part, query=None, location=None, radius=None,
     )
 
 
-async def places_nearby(client, location, radius=None, keyword=None, language=None,
-                        min_price=None, max_price=None, name=None, open_now=False,
-                        rank_by=None, type=None, page_token=None):
+async def places_nearby(client, location, radius=None, keyword=None,
+                        language=None, min_price=None, max_price=None,
+                        name=None, open_now=False, rank_by=None,
+                        type=None, page_token=None):
     if rank_by == 'distance':
         if not (keyword or name or type):
             raise ValueError('either a keyword, name, or type arg is required '
                              'when rank_by is set to distance')
         elif radius is not None:
-            raise ValueError('radius cannot be specified when rank_by is set to '
-                             'distance')
+            raise ValueError('radius cannot be specified when rank_by '
+                             'is set to distance')
 
-    return await client._places(client, 'nearby', location=location, radius=radius,
-                                keyword=keyword, language=language, min_price=min_price,
-                                max_price=max_price, name=name, open_now=open_now,
-                                rank_by=rank_by, type=type, page_token=page_token)
+    return await client._places(
+        client, 'nearby', location=location,
+        radius=radius, keyword=keyword, language=language,
+        min_price=min_price, max_price=max_price, name=name,
+        open_now=open_now, rank_by=rank_by,
+        type=type, page_token=page_token,
+    )
 
 
 async def places_radar(client, *args, **kwargs):
