@@ -1,4 +1,4 @@
-import googlemaps.places as places_
+import googlemaps
 from googlemaps import convert
 
 __ALL__ = (
@@ -11,37 +11,12 @@ __ALL__ = (
 )
 
 
-async def _places(client, url_part, query=None, location=None,
-                  radius=None, keyword=None, language=None, min_price=0,
-                  max_price=4, name=None, open_now=False, rank_by=None,
-                  type=None, page_token=None):
-    params = {'minprice': min_price, 'maxprice': max_price}
+async def places(client):
+    raise NotImplementedError
 
-    if query:
-        params['query'] = query
-    if location:
-        params['location'] = convert.latlng(location)
-    if radius:
-        params['radius'] = radius
-    if keyword:
-        params['keyword'] = keyword
-    if language:
-        params['language'] = language
-    if name:
-        params['name'] = convert.join_list(' ', name)
-    if open_now:
-        params['opennow'] = 'true'
-    if rank_by:
-        params['rankby'] = rank_by
-    if type:
-        params['type'] = type
-    if page_token:
-        params['pagetoken'] = page_token
 
-    return await client._request(
-        'maps/api/place/{url_part}/json'.format(url_part=url_part),
-        params,
-    )
+async def place(client, place_id, language=None):
+    return await googlemaps.places.place(client, place_id, language=None)
 
 
 async def places_nearby(client, location, radius=None, keyword=None,
@@ -56,7 +31,7 @@ async def places_nearby(client, location, radius=None, keyword=None,
             raise ValueError('radius cannot be specified when rank_by '
                              'is set to distance')
 
-    return await client._places(
+    return await googlemaps.places._places(
         client, 'nearby', location=location,
         radius=radius, keyword=keyword, language=language,
         min_price=min_price, max_price=max_price, name=name,
@@ -65,16 +40,21 @@ async def places_nearby(client, location, radius=None, keyword=None,
     )
 
 
-async def places_radar(client, *args, **kwargs):
-    raise NotImplementedError
+async def places_radar(client, location, radius, keyword=None,
+                       min_price=None, max_price=None, name=None,
+                       open_now=False, type=None):
+
+    return await googlemaps.places._places(
+        client, location, radius,
+        keyword=keyword, min_price=min_price,
+        max_price=max_price, name=name,
+        open_now=open_now, rank_by=rank_by,
+        type=type, page_token=page_token,
+    )
 
 
 async def places_autocomplete(client, *args, **kwargs):
     raise NotImplementedError
-
-
-async def place(client, place_id, language=None):
-    return await places_.place(client, place_id, language=None)
 
 
 async def places_photo(client, reference, max_width=None, max_height=None):
