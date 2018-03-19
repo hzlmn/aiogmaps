@@ -9,9 +9,12 @@ from .places import (place, places_autocomplete, places_nearby, places_photo,
 
 
 class Client:
-    def __init__(self, key, loop=None, session=None, timeout=10):
+    def __init__(self, key, loop=None,
+                 session=None, verify_ssl=True,
+                 request_timeout=10):
         if loop is None:
             loop = asyncio.get_event_loop()
+
         self.loop = loop
 
         if not isinstance(key, str):
@@ -19,11 +22,17 @@ class Client:
 
         self.key = key
         self.base_url = URL('https://maps.googleapis.com/')
-        self._response_type = 'json'
-        self.timeout = timeout
+        self.request_timeout = request_timeout
 
         if session is None:
-            session = aiohttp.ClientSession(loop=loop)
+            session = aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(
+                    use_dns_cache=True,
+                    loop=loop,
+                    verify_ssl=verify_ssl,
+                )
+            )
+
         self.session = session
 
     async def _request(
@@ -34,7 +43,8 @@ class Client:
             **params,
             'key': self.key,
         }
-        async with async_timeout.timeout(self.timeout):
+
+        async with async_timeout.timeout(self.request_timeout):
             async with self.session.request(
                 method,
                 self.base_url / route.lstrip('/'),
