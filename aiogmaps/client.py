@@ -2,7 +2,6 @@ import asyncio
 import logging
 
 import aiohttp
-import async_timeout
 from aiohttp import web
 from yarl import URL
 

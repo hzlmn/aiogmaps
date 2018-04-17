@@ -91,7 +91,8 @@ async def _autocomplete(client, url_part, input_text,
     return result['predictions']
 
 
-async def places_photo(client, photo_reference, max_width=None, max_height=None):
+async def places_photo(client, photo_reference,
+                       max_width=None, max_height=None):
     if not (max_width or max_height):
         raise ValueError('a max_width or max_height arg is required')
 

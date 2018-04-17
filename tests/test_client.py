@@ -1,5 +1,3 @@
-import collections
-
 import pytest
 
 from aiogmaps.client import Client
@@ -36,16 +34,8 @@ async def test_places_photo(client):
         'CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU',  # noqa
         max_width=400,
     )
-
-    buffer = b''
-
-    async for chunk, _ in response:
-        buffer += chunk
-
-    with open('./test_image.jpg', mode='wb') as fd:
-        fd.write(buffer)
-
-    # assert response is not None
+    async for chunk, eof in response:
+        pass
 
 
 @pytest.mark.xfail
