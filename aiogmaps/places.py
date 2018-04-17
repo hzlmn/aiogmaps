@@ -91,8 +91,15 @@ async def _autocomplete(client, url_part, input_text,
     return result['predictions']
 
 
-async def places_photo(client, reference, max_width=None, max_height=None):
-    query = {'photoreference': reference}
+async def places_photo(client, photo_reference, max_width=None, max_height=None):
     if not (max_width or max_height):
-        raise ValueError('Please provide max_width or max_height')
-    return await client._request('maps/api/place/photo', query, chunked=True)
+        raise ValueError('a max_width or max_height arg is required')
+
+    params = {'photoreference': photo_reference}
+
+    if max_width:
+        params['maxwidth'] = max_width
+    if max_height:
+        params['maxheight'] = max_height
+
+    return await client._request('/maps/api/place/photo', params, chunked=True)

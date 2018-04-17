@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import aiohttp
 import async_timeout
@@ -9,6 +10,8 @@ from . import __version__
 from .places import (place, places, places_autocomplete,  # noqa
                      places_autocomplete_query, places_nearby, places_photo,
                      places_radar)
+
+logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -66,24 +69,28 @@ class Client:
 
         params = self._get_params(params)
 
-        async with async_timeout.timeout(self.request_timeout):
-            # import pdb; pdb.set_trace()
-            async with self.session.request(
+        try:
+            response = await self.session.request(
                 method,
                 self.base_url / url.lstrip('/'),
                 params=params,
                 headers=self._headers,
+                timeout=self.request_timeout,
                 **kwargs,
-            ) as response:
-                if chunked:
-                    return response.content.iter_chunks()
+            )
+        except aiohttp.ClientError as exc:
+            logger.exception(exc, exc_info=exc)
+            raise
 
-                response = await response.json()
+        if chunked:
+            return response.content.iter_chunks()
 
-                if response['status'] == 'REQUEST_DENIED':
-                    raise web.HTTPBadRequest(reason=response['error_message'])
+        response = await response.json()
 
-                return response
+        if response['status'] == 'REQUEST_DENIED':
+            raise web.HTTPBadRequest(reason=response['error_message'])
+
+        return response
 
     async def close(self):
         await self.session.close()
