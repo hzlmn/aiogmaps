@@ -1,3 +1,5 @@
+import collections
+
 import pytest
 
 from aiogmaps.client import Client
@@ -8,9 +10,25 @@ async def test_throw_on_empty_key(loop):
         Client(None, loop=loop)
 
 
+async def test_places(client):
+    response = await client.places(
+        '123 main street',
+        location=(42.3675294, -71.186966),
+        type='liquor_store',
+        language='en-AU',
+        radius=100,
+    )
+    assert response is not None
+
+
+async def test_places_autocomplete(client):
+    response = await client.places_autocomplete('Victo')
+    assert isinstance(response, list)
+
+
 async def test_place(client):
     response = await client.place(place_id='ChIJN1t_tDeuEmsRUsoyG83frY4')
-    assert response['status']
+    assert response is not None
 
 
 async def test_places_photo(client):
@@ -29,8 +47,3 @@ async def test_places_nearby(client):
 @pytest.mark.xfail
 async def test_places_radar(client):
     await client.places_radar({})
-
-
-@pytest.mark.xfail
-async def test_places_autocomplete(client):
-    await client.places_autocomplete({})
