@@ -9,6 +9,8 @@ from . import __version__
 from .places import (place, places, places_autocomplete,  # noqa
                      places_autocomplete_query, places_nearby, places_photo,
                      places_radar)
+from .roads import (nearest_roads, snap_to_roads, snapped_speed_limits,
+                    speed_limits)
 
 logger = logging.getLogger(__name__)
 
@@ -57,21 +59,44 @@ class Client:
             raise NotImplementedError
 
         if self.key is not None:
+            if isinstance(params, (list, tuple)):
+                params.append(('key', self.key))
+                return params
+
             return {'key': self.key, **params}
 
-    async def _request(self, url, params, base_url=None,
-                       method='GET', chunked=False, **kwargs):
+    async def _extract_body(self, response):
+        return await response.json()
+
+    async def _request(
+        self,
+        url,
+        params,
+        base_url=None,
+        extract_body=None,
+        method='GET',
+        chunked=False,
+        accepts_clientid=False,
+        **kwargs,
+    ):
+        if extract_body and not callable(extract_body):
+            raise TypeError('extract_body should be callable')
+
+        if extract_body is None:
+            extract_body = self._extract_body
 
         # ? can we use URL here
         if not (base_url and isinstance(base_url, (str, URL))):
             base_url = self.base_url
+
+        base_url = URL(base_url)
 
         params = self._get_params(params)
 
         try:
             response = await self.session.request(
                 method,
-                self.base_url / url.lstrip('/'),
+                base_url / url.lstrip('/'),
                 params=params,
                 headers=self._headers,
                 timeout=self.request_timeout,
@@ -84,12 +109,11 @@ class Client:
         if chunked:
             return response.content.iter_chunks()
 
-        response = await response.json()
+        result = extract_body(response)
+        if asyncio.iscoroutine(result):
+            result = await result
 
-        if response['status'] == 'REQUEST_DENIED':
-            raise web.HTTPBadRequest(reason=response['error_message'])
-
-        return response
+        return result
 
     async def close(self):
         await self.session.close()
@@ -108,3 +132,9 @@ Client.places_nearby = places_nearby
 Client.places_autocomplete = places_autocomplete
 Client.places_photo = places_photo
 Client.places_radar = places_radar
+
+# Roads API
+Client.speed_limits = speed_limits
+Client.nearest_roads = nearest_roads
+Client.snap_to_roads = snap_to_roads
+Client.snapped_speed_limits = snapped_speed_limits

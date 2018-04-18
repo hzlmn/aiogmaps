@@ -25,7 +25,7 @@ async def test_places_autocomplete(client):
 
 
 async def test_place(client):
-    response = await client.place(place_id='ChIJN1t_tDeuEmsRUsoyG83frY4')
+    response = await client.place(place_id='ChIJNX9BrM0LkkYRIM-cQg265e8')
     assert response is not None
 
 
@@ -36,6 +36,16 @@ async def test_places_photo(client):
     )
     async for chunk, eof in response:
         pass
+
+
+async def test_nearest_roads(client):
+    response = await client.nearest_roads((60.170880, 24.942795))
+    assert response is not None
+
+
+async def test_speed_limits(client):
+    response = await client.speed_limits('ChIJNX9BrM0LkkYRIM-cQg265e8')
+    assert response is not None
 
 
 @pytest.mark.xfail
