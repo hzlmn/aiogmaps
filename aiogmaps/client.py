@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 import aiohttp
+import googlemaps
 from yarl import URL
 
 from . import __version__
@@ -64,27 +65,22 @@ class Client:
 
             return {'key': self.key, **params}
 
-    async def _extract_body(self, response):
-        return await response.json()
-
     async def _request(
         self,
         url,
         params,
+        data=None,
         base_url=None,
         extract_body=None,
         method='GET',
         chunked=False,
         accepts_clientid=False,
+        post_json=None,
         **kwargs,
     ):
         if extract_body and not callable(extract_body):
             raise TypeError('extract_body should be callable')
 
-        if extract_body is None:
-            extract_body = self._extract_body
-
-        # ? can we use URL here
         if not (base_url and isinstance(base_url, (str, URL))):
             base_url = self.base_url
 
@@ -92,11 +88,16 @@ class Client:
 
         params = self._get_params(params)
 
+        if post_json is not None:
+            method = 'POST'
+            data = post_json
+
         try:
             response = await self.session.request(
                 method,
                 base_url / url.lstrip('/'),
                 params=params,
+                data=data,
                 headers=self._headers,
                 timeout=self.request_timeout,
                 **kwargs,
@@ -108,11 +109,31 @@ class Client:
         if chunked:
             return response.content.iter_chunks()
 
-        result = extract_body(response)
-        if asyncio.iscoroutine(result):
-            result = await result
+        if extract_body is not None:
+            result = extract_body(response)
+            if asyncio.iscoroutine(result):
+                result = await result
+        else:
+            result = await self._get_body(response)
 
         return result
+
+    async def _get_body(self, response):
+        if response.status != 200:
+            raise googlemaps.exceptions.HTTPError(response.status_code)
+
+        body = await response.json()
+
+        api_status = body['status']
+        if api_status == 'OK' or api_status == 'ZERO_RESULTS':
+            return body
+
+        if api_status == 'OVER_QUERY_LIMIT':
+            raise googlemaps.exceptions._OverQueryLimit(
+                api_status, body.get('error_message'))
+
+        raise googlemaps.exceptions.ApiError(api_status,
+                                             body.get('error_message'))
 
     async def close(self):
         await self.session.close()
