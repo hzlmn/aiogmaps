@@ -27,6 +27,7 @@ async def test_autocomplete(aresponses, client, api_key):
     }
 
     patched_url = URL.build(
+        scheme='https',
         host='maps.googleapis.com',
         path='/maps/api/place/autocomplete/json',
         query=query,
