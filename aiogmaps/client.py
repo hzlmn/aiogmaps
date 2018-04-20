@@ -11,6 +11,7 @@ from .places import (place, places, places_autocomplete,  # noqa
                      places_radar)
 from .roads import (nearest_roads, snap_to_roads, snapped_speed_limits,
                     speed_limits)
+from .timezone import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -158,3 +159,6 @@ Client.speed_limits = speed_limits
 Client.nearest_roads = nearest_roads
 Client.snap_to_roads = snap_to_roads
 Client.snapped_speed_limits = snapped_speed_limits
+
+# Timezone API
+Client.timezone = timezone
