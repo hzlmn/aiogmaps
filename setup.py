@@ -26,7 +26,7 @@ def read(*parts):
 packages = ['aiogmaps']
 
 
-install_requires = ['aiohttp>=2.3.5']
+install_requires = ['aiohttp>=2.3.5', 'googlemaps']
 
 
 classifiers = ['Intended Audience :: Developers',
