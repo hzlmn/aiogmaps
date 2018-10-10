@@ -10,16 +10,10 @@ python:
 
 install:
   - pip install -U setuptools
-  - pip install -U pip
-  - pip install -U wheel
-  - pip install -U tox
-
+  - pip install -r requirements-dev.txt
 
 script:
-  - export TOXENV=py`python -c 'import sys; print("".join(map(str, sys.version_info[:2])))'`
-  - echo "$TOXENV"
-
-  - tox
+  - flake8 aiogmaps/
 
 cache:
   directories:
