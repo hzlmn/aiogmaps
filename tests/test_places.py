@@ -4,10 +4,6 @@ import aresponses
 from yarl import URL
 
 
-async def test_places(aresponses, client, api_key):
-    pass
-
-
 async def test_autocomplete(aresponses, client, api_key):
     location = (-33.86746, 151.207090)
     language = 'en-AU'
