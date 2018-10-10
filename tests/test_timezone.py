@@ -27,5 +27,5 @@ async def test_timezone(aresponses, client, api_key):
         match_querystring=True,
     )
 
-    timezone = await client.timezone(location, timestamp)
-    assert timezone is not None
+    resp = await client.timezone(location, timestamp)
+    assert resp['status'] == 'OK'
