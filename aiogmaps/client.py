@@ -18,8 +18,8 @@ logger = logging.getLogger('aiogmaps')
 
 class Client:
     def __init__(self, key=None, client_id=None, client_secret=None,
-                 session=None, verify_ssl=True, request_timeout=10,
-                 loop=None):
+                 session=None, close_session=False, verify_ssl=True,
+                 request_timeout=10, loop=None):
         if loop is None:
             loop = asyncio.get_event_loop()
 
@@ -37,6 +37,8 @@ class Client:
         self.client_secret = client_secret
         self.request_timeout = request_timeout
 
+        self.close_session = close_session
+
         if session is None:
             session = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(
@@ -44,6 +46,7 @@ class Client:
                     verify_ssl=verify_ssl,
                 )
             )
+            self.close_session = True
 
         self.session = session
 
@@ -136,7 +139,8 @@ class Client:
                                              body.get('error_message'))
 
     async def close(self):
-        await self.session.close()
+        if self.close_session:
+            await self.session.close()
 
     async def __aenter__(self):
         return self
