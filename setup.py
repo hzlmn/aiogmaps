@@ -40,10 +40,11 @@ setup(
     version=get_version(),
     description='Asyncio client library for Google Maps API Web Services',
     long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     url='https://github.com/hzlmn/aiogmaps',
     author='Oleh Kuchuk',
     author_email='kuchuklehjs@gmail.com',
-    license=read('LICENSE.txt'),
+    license='MIT',
     packages=packages,
     install_requires=install_requires,
     zip_safe=False,
@@ -51,6 +52,5 @@ setup(
     keywords=[
         'asyncio',
         'aiohttp',
-        'jwt',
     ],
 )
