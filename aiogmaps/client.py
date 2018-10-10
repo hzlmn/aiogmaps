@@ -90,7 +90,7 @@ class Client:
         chunked=False,
         accepts_clientid=False,
         post_json=None,
-        **kwargs,
+        **kwargs
     ):
         if extract_body and not callable(extract_body):
             raise TypeError('extract_body should be callable')
