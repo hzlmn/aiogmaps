@@ -13,7 +13,7 @@ from .roads import (nearest_roads, snap_to_roads, snapped_speed_limits,
                     speed_limits)
 from .timezone import timezone
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aiogmaps')
 
 
 class Client:
@@ -40,7 +40,6 @@ class Client:
         if session is None:
             session = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(
-                    use_dns_cache=True,
                     loop=loop,
                     verify_ssl=verify_ssl,
                 )
