@@ -23,7 +23,7 @@ def api_key():
 
 
 @pytest.fixture
-def client(loop, api_key):
-    client = Client(api_key, loop=loop)
+async def client(loop, api_key):
+    client = Client(api_key, verify_ssl=False, loop=loop)
     yield client
-    loop.run_until_complete(client.close())
+    await client.close()

@@ -5,48 +5,25 @@ from yarl import URL
 
 
 async def test_autocomplete(aresponses, client, api_key):
-    location = (-33.86746, 151.207090)
-    language = 'en-AU'
-    region = 'AU'
-    radius = 100
-
-    query = {
-        'key': api_key,
-        'intput': 'Google',
-        'offset': 3,
-        'location': '-33.86746,151.20709',
-        'radius': 100,
-        'language': 'en-AU',
-        'types': 'geocode',
-        'components': 'country:au',
-        'strictbounds': 'true',
-    }
-
     patched_url = URL.build(
-        scheme='https',
-        host='maps.googleapis.com',
         path='/maps/api/place/autocomplete/json',
-        query=query,
+        query={
+            'key': api_key,
+            'input': 'Google',
+        },
     )
 
     aresponses.add(
-        patched_url.host,
-        patched_url.path_qs,
+        'maps.googleapis.com',
+        patched_url.human_repr(),
         'get',
         aresponses.Response(
-            body='{"status": "OK", "predictions": []}',
+            body='{"status": "OK", "predictions": ["foo"]}',
             status=200,
             content_type='application/json',
-        )
+        ),
+        match_querystring=True
     )
 
-    places = await client.places_autocomplete(
-        'Google', offset=3,
-        location=location,
-        radius=radius,
-        language=language,
-        types='geocode',
-        components={'country': 'au'},
-        strict_bounds=True,
-    )
-    assert places is not None
+    places = await client.places_autocomplete('Google')
+    assert places == ["foo"]
