@@ -68,6 +68,9 @@ class Client:
             'User-Agent': self._user_agent,
         }
 
+    def __getitem__(self, name):
+        return getattr(self, name)
+
     def _get_params(self, params, accepts_clientid=False):
         if accepts_clientid and self.client_id and self.client_secret:
             raise NotImplementedError
@@ -169,6 +172,7 @@ Client.place = place
 Client.places = places
 Client.places_nearby = places_nearby
 Client.places_autocomplete = places_autocomplete
+Client.places_autocomplete_query = places_autocomplete_query
 Client.places_photo = places_photo
 Client.places_radar = places_radar
 
