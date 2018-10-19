@@ -13,6 +13,5 @@ async def distance_matrix(client, origins, destinations,
         mode=mode, language=language, avoid=avoid, units=units,
         departure_time=departure_time, arrival_time=arrival_time,
         transit_routing_preference=transit_routing_preference,
-        traffic_model=traffic_model, region=region,
-        transit_mode=transit_mode,
+        traffic_model=traffic_model, transit_mode=transit_mode,
     )
