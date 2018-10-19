@@ -5,7 +5,7 @@ Asyncio client library for Google Maps API Web Services
 
 ## Requirements
 
-- [googlemaps](https://github.com/googlemaps/google-maps-services-python)
+- [googlemaps](https://github.com/googlemaps/google-maps-services-python) >= 3.0
 
 
 ## Getting Started
