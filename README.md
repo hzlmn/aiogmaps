@@ -34,6 +34,10 @@ if __name__ == '__main__':
 
 ```
 
+## Documentation
+
+This library works as a wrapper around official googlemaps library.
+
 For detailed API reference
 - https://developers.google.com/maps/documentation/
 - https://googlemaps.github.io/google-maps-services-python/docs/
