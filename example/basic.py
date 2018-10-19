@@ -1,14 +1,12 @@
 import asyncio
-import collections
 
 from aiogmaps import Client
 
-
 async def main(loop):
-    gmaps = Client('your api key', loop=loop)
-    response = await gmaps.place('ChIJN1t_tDeuEmsRUsoyG83frY4')
-    assert isinstance(response, collections.Mapping)
-    print(response)
+    api_key = 'xxx'
+    async with Client(api_key, loop=loop) as client:
+        resp = client.place(place_id='ChIJN1t_tDeuEmsRUsoyG83frY4')
+        print(resp)
 
 
 if __name__ == '__main__':

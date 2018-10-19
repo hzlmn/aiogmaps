@@ -3,11 +3,15 @@
 
 Asyncio client library for Google Maps API Web Services
 
+## Requirements
+
+- [googlemaps](https://github.com/googlemaps/google-maps-services-python)
+
 
 ## Getting Started
 
 ```sh
-$ pip install aiogmaps
+pip install aiogmaps
 ```
 
 ## Usage
@@ -17,15 +21,11 @@ import asyncio
 
 from aiogmaps import Client
 
-API_KEY = "<your api key>"
-
-
 async def main(loop):
-    gmaps = Client(API_KEY, verify_ssl=False, loop=loop)
-    response = await gmaps.place('ChIJN1t_tDeuEmsRUsoyG83frY4')
-    assert response is not None
-    print(response)
-    await gmaps.close()
+    api_key = 'xxx'
+    async with Client(api_key, loop=loop) as client:
+        resp = client.place(place_id='ChIJN1t_tDeuEmsRUsoyG83frY4')
+        print(resp)
 
 
 if __name__ == '__main__':
@@ -34,7 +34,6 @@ if __name__ == '__main__':
 
 ```
 
-
-## License
-
-`MIT`
+For detailed API reference
+- https://developers.google.com/maps/documentation/
+- https://googlemaps.github.io/google-maps-services-python/docs/
