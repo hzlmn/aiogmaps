@@ -3,6 +3,7 @@ import logging
 
 import aiohttp
 import googlemaps
+from googlemaps.client import urlencode_params, sign_hmac
 from yarl import URL
 
 from . import __version__
@@ -50,6 +51,7 @@ class Client:
         if session is None:
             if aiohttp3:
                 session = aiohttp.ClientSession(loop=self.loop)
+
             else:
                 session = aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(
@@ -71,16 +73,24 @@ class Client:
     def __getitem__(self, name):
         return getattr(self, name)
 
-    def _get_params(self, params, accepts_clientid=False):
-        if accepts_clientid and self.client_id and self.client_secret:
-            raise NotImplementedError
+    def _get_params(self, path, params, accepts_clientid):
+        extra_params = getattr(self, "_extra_params", None) or {}
+        if type(params) is dict:
+            params = sorted(dict(extra_params, **params).items())
+        else:
+            params = sorted(extra_params.items()) + params[:]  # Take a copy.
 
         if self.key is not None:
             if isinstance(params, (list, tuple)):
                 params.append(('key', self.key))
-                return params
 
-            return {'key': self.key, **params}
+        if accepts_clientid and self.client_id and self.client_secret:
+            params.append(("client", self.client_id))
+            path = "?".join([str(path), urlencode_params(params)])
+            sig = sign_hmac(self.client_secret, path)
+            params.append(("signature", sig))
+
+        return params
 
     async def _request(
         self,
@@ -91,7 +101,7 @@ class Client:
         extract_body=None,
         method='GET',
         chunked=False,
-        accepts_clientid=False,
+        accepts_clientid=True,
         post_json=None,
         **kwargs
     ):
@@ -102,22 +112,29 @@ class Client:
             base_url = self.base_url
 
         base_url = URL(base_url)
-
-        params = self._get_params(params)
+        params = self._get_params(
+            path='/' + url.lstrip('/'),
+            params=params,
+            accepts_clientid=accepts_clientid
+        )
 
         if aiohttp3:
             # https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.ClientSession.request
             kwargs.update({'ssl': self.verify_ssl})
 
+        combined_url = URL(
+            "?".join([str(base_url / url.lstrip('/')),
+                      urlencode_params(params)]),
+            encoded=True
+        )
+
         if post_json is not None:
             method = 'POST'
             data = post_json
-
         try:
             response = await self.session.request(
                 method,
-                base_url / url.lstrip('/'),
-                params=params,
+                combined_url,
                 data=data,
                 headers=self._headers,
                 timeout=self.request_timeout,
