@@ -51,7 +51,6 @@ class Client:
         if session is None:
             if aiohttp3:
                 session = aiohttp.ClientSession(loop=self.loop)
-
             else:
                 session = aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(
@@ -74,12 +73,7 @@ class Client:
         return getattr(self, name)
 
     def _get_params(self, path, params, accepts_clientid):
-        extra_params = getattr(self, "_extra_params", None) or {}
-        if type(params) is dict:
-            params = sorted(dict(extra_params, **params).items())
-        else:
-            params = sorted(extra_params.items()) + params[:]  # Take a copy.
-
+        params = sorted(dict(params).items())
         if self.key is not None:
             if isinstance(params, (list, tuple)):
                 params.append(('key', self.key))
