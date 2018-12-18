@@ -19,7 +19,7 @@ def event_loop(loop):
 
 @pytest.fixture
 def api_key():
-    return os.environ.get('API_KEY')
+    return "AIzaSyAxxx"
 
 
 @pytest.fixture
