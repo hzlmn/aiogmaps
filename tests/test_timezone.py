@@ -8,9 +8,9 @@ async def test_timezone(aresponses, client, api_key):
     patched_path = URL.build(
         path='/maps/api/timezone/json',
         query={
-            'key': api_key,
             'location': '{},{}'.format(*location),
             'timestamp': timestamp,
+            'key': api_key
         },
     )
 

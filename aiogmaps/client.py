@@ -1,9 +1,10 @@
 import asyncio
 import logging
+import re
 
 import aiohttp
 import googlemaps
-from googlemaps.client import urlencode_params, sign_hmac
+from googlemaps import client as gmaps_client
 from yarl import URL
 
 from . import __version__
@@ -27,7 +28,7 @@ aiohttp3 = aiohttp.__version__.startswith('3.')
 class Client:
     def __init__(self, key=None, client_id=None, client_secret=None,
                  session=None, close_session=False, verify_ssl=True,
-                 request_timeout=10, loop=None):
+                 request_timeout=10, channel=None, loop=None):
         if loop is None:
             loop = asyncio.get_event_loop()
 
@@ -44,6 +45,16 @@ class Client:
         self.client_id = client_id
         self.client_secret = client_secret
         self.request_timeout = request_timeout
+
+        if channel:
+            if not client_id:
+                raise ValueError("The channel argument must be used with a "
+                                 "client ID")
+            if not re.match("^[a-zA-Z0-9._-]*$", channel):
+                raise ValueError("The channel argument must be an ASCII "
+                                 "alphanumeric string. The period (.), underscore (_)"
+                                 "and hyphen (-) characters are allowed.")
+        self.channel = channel
 
         self.close_session = close_session
         self.verify_ssl = verify_ssl
@@ -62,7 +73,7 @@ class Client:
 
         self.session = session
 
-        self.base_url = URL('https://maps.googleapis.com/')
+        self.base_url = URL('https://maps.googleapis.com')
         self._user_agent = 'AsyncGoogleGeoApiClientPython/{}'.format(
             __version__)
         self._headers = {
@@ -71,20 +82,6 @@ class Client:
 
     def __getitem__(self, name):
         return getattr(self, name)
-
-    def _get_params(self, path, params, accepts_clientid):
-        params = sorted(dict(params).items())
-        if self.key is not None:
-            if isinstance(params, (list, tuple)):
-                params.append(('key', self.key))
-
-        if accepts_clientid and self.client_id and self.client_secret:
-            params.append(("client", self.client_id))
-            path = "?".join([str(path), urlencode_params(params)])
-            sig = sign_hmac(self.client_secret, path)
-            params.append(("signature", sig))
-
-        return params
 
     async def _request(
         self,
@@ -106,22 +103,12 @@ class Client:
             base_url = self.base_url
 
         base_url = URL(base_url)
-        params = self._get_params(
-            path='/' + url.lstrip('/'),
-            params=params,
-            accepts_clientid=accepts_clientid
-        )
+        authed_url = gmaps_client.Client._generate_auth_url(self, '/' + url.lstrip('/'), params, accepts_clientid)
 
         if aiohttp3:
             # https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.ClientSession.request
             kwargs.update({'ssl': self.verify_ssl})
-
-        combined_url = URL(
-            "?".join([str(base_url / url.lstrip('/')),
-                      urlencode_params(params)]),
-            encoded=True
-        )
-
+        combined_url = URL(str(base_url) + authed_url, encoded=True)
         if post_json is not None:
             method = 'POST'
             data = post_json
