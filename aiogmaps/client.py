@@ -52,7 +52,8 @@ class Client:
                                  "client ID")
             if not re.match("^[a-zA-Z0-9._-]*$", channel):
                 raise ValueError("The channel argument must be an ASCII "
-                                 "alphanumeric string. The period (.), underscore (_)"
+                                 "alphanumeric string. "
+                                 "The period (.), underscore (_)"
                                  "and hyphen (-) characters are allowed.")
         self.channel = channel
 
@@ -103,7 +104,9 @@ class Client:
             base_url = self.base_url
 
         base_url = URL(base_url)
-        authed_url = gmaps_client.Client._generate_auth_url(self, '/' + url.lstrip('/'), params, accepts_clientid)
+        authed_url = gmaps_client.Client._generate_auth_url(
+            self, '/' + url.lstrip('/'), params, accepts_clientid
+        )
 
         if aiohttp3:
             # https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.ClientSession.request
