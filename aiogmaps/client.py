@@ -143,7 +143,7 @@ class Client:
 
     async def _get_body(self, response):
         if response.status != 200:
-            raise googlemaps.exceptions.HTTPError(response.status_code)
+            raise googlemaps.exceptions.HTTPError(response.status)
 
         body = await response.json()
 
