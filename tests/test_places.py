@@ -11,8 +11,8 @@ async def test_place(aresponses, client, api_key):
     patched_url = URL.build(
         path='/maps/api/place/details/json',
         query={
-            'key': api_key,
             'placeid': place_id,
+            'key': api_key
         },
     )
 
@@ -36,13 +36,12 @@ async def test_places(aresponses, client, api_key):
     patched_url = URL.build(
         path='/maps/api/place/textsearch/json',
         query={
-            'key': api_key,
-            'minprice': 0,
             'maxprice': 4,
+            'minprice': 0,
             'query': 'Google',
+            'key': api_key
         },
     )
-
     aresponses.add(
         'maps.googleapis.com',
         patched_url.human_repr(),
@@ -115,8 +114,8 @@ async def test_autocomplete(aresponses, client, api_key, query_type, handler):
     patched_url = URL.build(
         path=f'/maps/api/place/{query_type}autocomplete/json',
         query={
-            'key': api_key,
             'input': 'Google',
+            'key': api_key
         },
     )
 
