@@ -4,7 +4,6 @@ import re
 
 import aiohttp
 import googlemaps
-from googlemaps import client as gmaps_client
 from yarl import URL
 
 from . import __version__
@@ -104,14 +103,16 @@ class Client:
             base_url = self.base_url
 
         base_url = URL(base_url)
-        authed_url = gmaps_client.Client._generate_auth_url(
+        authed_url = googlemaps.Client._generate_auth_url(
             self, '/' + url.lstrip('/'), params, accepts_clientid
         )
 
         if aiohttp3:
             # https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.ClientSession.request
             kwargs.update({'ssl': self.verify_ssl})
+
         combined_url = URL(str(base_url) + authed_url, encoded=True)
+
         if post_json is not None:
             method = 'POST'
             data = post_json

@@ -4,20 +4,20 @@ from googlemaps.client import sign_hmac, urlencode_params
 import aiogmaps
 
 
-async def test_url_signed(aresponses):
-    client_id = "foo"
-    client_secret = "test"
-    address = "Test St."
-    client = aiogmaps.Client(client_id=client_id, client_secret=client_secret)
+async def test_url_signed(aresponses, enterprise_client, credentials):
+    address = 'Test St.'
     params = {
         'address': address,
-        'client': client_id
+        'client': credentials['client_id']
     }
-    path = "?".join(['/maps/api/geocode/json', urlencode_params(params.items())])
-    expected_signature = sign_hmac(client_secret, path)
+
+    path = '?'.join(['/maps/api/geocode/json',
+                     urlencode_params(params.items())])
+    expected_signature = sign_hmac(credentials['client_secret'], path)
+
     aresponses.add(
         'maps.googleapis.com',
-        path + '{}{}'.format('&signature=', expected_signature),
+        path + '&signature={}'.format(expected_signature),
         'get',
         aresponses.Response(
             body='{"status": "OK", "results": ["foo"]}',
@@ -26,5 +26,5 @@ async def test_url_signed(aresponses):
         ),
         match_querystring=True,
     )
-    resp = await client.geocode(address)
+    resp = await enterprise_client.geocode(address)
     assert resp == ['foo']

@@ -23,7 +23,22 @@ def api_key():
 
 
 @pytest.fixture
+def credentials():
+    return {
+        "client_id": "foo",
+        "client_secret": "test"
+    }
+
+
+@pytest.fixture
 async def client(loop, api_key):
     client = Client(api_key, verify_ssl=False, loop=loop)
+    yield client
+    await client.close()
+
+
+@pytest.fixture
+async def enterprise_client(loop, credentials):
+    client = Client(**credentials, verify_ssl=False, loop=loop)
     yield client
     await client.close()
