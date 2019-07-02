@@ -14,7 +14,9 @@ async def places(client, query, location=None, radius=None, language=None,
 
 
 async def place(client, place_id, fields=None, language=None):
-    return await googlemaps.places.place(client, place_id, fields=fields, language=language)
+    return await googlemaps.places.place(
+        client, place_id, fields=fields, language=language
+    )
 
 
 async def places_radar(client, location, radius, keyword=None, min_price=0,
