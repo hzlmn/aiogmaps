@@ -14,7 +14,7 @@ from .geocoding import geocode, reverse_geocode
 from .geolocation import geolocate
 from .places import (place, places, places_autocomplete,  # noqa
                      places_autocomplete_query, places_nearby, places_photo,
-                     places_radar)
+                     places_radar, find_place)
 from .roads import (nearest_roads, snap_to_roads, snapped_speed_limits,
                     speed_limits)
 from .timezone import timezone
@@ -177,6 +177,7 @@ Client.places_autocomplete = places_autocomplete
 Client.places_autocomplete_query = places_autocomplete_query
 Client.places_photo = places_photo
 Client.places_radar = places_radar
+Client.find_place = find_place
 
 # Roads API
 Client.speed_limits = speed_limits

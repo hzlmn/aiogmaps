@@ -2,6 +2,14 @@ import googlemaps
 from googlemaps import convert
 
 
+async def find_place(client, query, input_type, fields=None,
+                     language=None, location_bias=None):
+    return await googlemaps.places.find_place(
+        client, query, input_type, fields=fields,
+        language=language, location_bias=location_bias
+    )
+
+
 async def places(client, query, location=None, radius=None, language=None,
                  min_price=0, max_price=4, open_now=False, type=None,
                  page_token=None):
@@ -13,14 +21,13 @@ async def places(client, query, location=None, radius=None, language=None,
     )
 
 
-async def place(client, place_id, fields=None, language=None):
-    return await googlemaps.places.place(
-        client, place_id, fields=fields, language=language
-    )
+async def place(client, place_id, language=None, fields=None):
+    return await googlemaps.places.place(client, place_id, fields=fields,
+                                         language=language)
 
 
-async def places_radar(client, location, radius, keyword=None, min_price=0,
-                       max_price=4, name=None, open_now=False, type=None):
+async def places_radar(client, location, radius, keyword=None, min_price=None,
+                       max_price=None, name=None, open_now=False, type=None):
 
     return await googlemaps.places.places_radar(
         client, location, radius, keyword=keyword,
